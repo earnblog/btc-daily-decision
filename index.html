@@ -6,68 +6,75 @@
 <title>BTC 每日决策</title>
 <style>
   :root{
-    --bg:#12151c; --panel:#171b24; --line:#242936; --fg:#e9ecf2; --mut:#7c8496;
-    --up:#e8574a; --dn:#2fbf8f; --acc:#f0a63a; --blu:#5b9cf5;
+    --bg:#12151c;--panel:#171b24;--panel2:#1d222c;--line:#242936;
+    --fg:#e9ecf2;--mut:#7c8496;--up:#e8574a;--dn:#2fbf8f;--acc:#f0a63a;--blu:#5b9cf5;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    background:var(--bg); color:var(--fg); min-height:100vh;
+  body{background:var(--bg);color:var(--fg);min-height:100vh;
     font-family:"Microsoft YaHei","PingFang SC",-apple-system,system-ui,sans-serif;
-    padding:28px 18px 60px; line-height:1.6;
-  }
-  .wrap{max-width:760px;margin:0 auto}
+    padding:26px 16px 70px;line-height:1.65}
+  .wrap{max-width:800px;margin:0 auto}
   header{display:flex;align-items:baseline;justify-content:space-between;
-    flex-wrap:wrap;gap:10px;margin-bottom:22px}
-  h1{font-size:22px;font-weight:600;letter-spacing:.5px}
-  .date{color:var(--mut);font-size:14px;font-variant-numeric:tabular-nums}
+    flex-wrap:wrap;gap:10px;margin-bottom:8px}
+  h1{font-size:21px;font-weight:600}
+  .date{color:var(--mut);font-size:13px;font-variant-numeric:tabular-nums}
+  .lede{color:var(--mut);font-size:14px;margin-bottom:22px}
 
-  .verdict{
-    background:var(--panel);border:1px solid var(--line);border-radius:14px;
-    padding:32px 28px;text-align:center;margin-bottom:18px;position:relative;
-    overflow:hidden;
-  }
-  .verdict::before{content:"";position:absolute;inset:0;opacity:.07;
-    background:var(--tone,transparent)}
-  .vlabel{color:var(--mut);font-size:13px;letter-spacing:2px;margin-bottom:10px}
-  .vmain{font-size:52px;font-weight:700;line-height:1.15;color:var(--tone,var(--fg))}
-  .vsub{color:var(--mut);font-size:15px;margin-top:12px}
-  .vlev{font-size:30px;font-weight:600;margin-top:16px;color:var(--fg);
-    font-variant-numeric:tabular-nums}
-  .vlev small{font-size:14px;color:var(--mut);font-weight:400}
+  .setup{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:18px 20px;margin-bottom:16px}
+  .setup h2{font-size:14px;color:var(--acc);margin-bottom:14px}
+  .frow{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start}
+  .fld{flex:1;min-width:170px}
+  .fld label{display:block;color:var(--mut);font-size:12.5px;margin-bottom:6px}
+  input,select{width:100%;background:var(--panel2);border:1px solid var(--line);
+    color:var(--fg);border-radius:8px;padding:9px 11px;font-size:15px;
+    font-family:inherit;font-variant-numeric:tabular-nums}
+  input:focus,select:focus{outline:none;border-color:var(--acc)}
+  .hint{color:var(--mut);font-size:12px;margin-top:6px;line-height:1.5}
 
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
-    gap:12px;margin-bottom:22px}
-  .cell{background:var(--panel);border:1px solid var(--line);border-radius:11px;
-    padding:15px 17px}
-  .ck{color:var(--mut);font-size:12.5px;margin-bottom:6px}
-  .cv{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
-  .cn{font-size:12.5px;color:var(--mut);margin-top:4px}
+  .act{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:26px 24px;margin-bottom:16px;position:relative;overflow:hidden}
+  .act::before{content:"";position:absolute;inset:0;opacity:.08;background:var(--tone,transparent)}
+  .act>*{position:relative}
+  .alabel{color:var(--mut);font-size:12.5px;letter-spacing:2px;margin-bottom:8px}
+  .amain{font-size:38px;font-weight:700;line-height:1.2;color:var(--tone,var(--fg))}
+  .awhy{color:var(--mut);font-size:14px;margin-top:10px}
+  .amath{background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;margin-top:16px;font-size:14.5px;font-variant-numeric:tabular-nums}
+  .amath div{display:flex;justify-content:space-between;padding:5px 0;flex-wrap:wrap;gap:8px}
+  .amath div:not(:last-child){border-bottom:1px dashed var(--line)}
+  .big{font-size:19px;color:var(--acc)}
 
-  .bar{height:6px;background:var(--line);border-radius:3px;margin-top:10px;
-    overflow:hidden;position:relative}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:11px;margin-bottom:20px}
+  .cell{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:14px 16px}
+  .ck{color:var(--mut);font-size:12px;margin-bottom:5px}
+  .cv{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+  .cn{font-size:12px;color:var(--mut);margin-top:3px}
+  .bar{height:5px;background:var(--line);border-radius:3px;margin-top:9px;position:relative;overflow:hidden}
   .bar i{display:block;height:100%;border-radius:3px}
-  .tick{position:absolute;top:-3px;width:2px;height:12px;background:var(--fg);opacity:.6}
+  .tick{position:absolute;top:-4px;width:2px;height:13px;background:var(--fg);opacity:.7}
 
   section{background:var(--panel);border:1px solid var(--line);border-radius:12px;
-    padding:20px 22px;margin-bottom:14px}
-  h2{font-size:15px;font-weight:600;margin-bottom:12px;color:var(--acc)}
-  ol,ul{padding-left:20px}
-  li{margin:7px 0;font-size:14.5px}
-  li b{color:var(--fg)}
+    padding:20px 22px;margin-bottom:13px}
+  h2.sh{font-size:15px;font-weight:600;margin-bottom:13px;color:var(--acc)}
+  ol,ul{padding-left:19px}
+  li{margin:8px 0;font-size:14.5px}
   .mut{color:var(--mut);font-size:13.5px}
   table{width:100%;border-collapse:collapse;font-size:14px}
-  td,th{padding:7px 4px;border-bottom:1px solid var(--line);text-align:left}
-  th{color:var(--mut);font-weight:500;font-size:13px}
-  td:last-child,th:last-child{text-align:right}
-
+  td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{color:var(--mut);font-weight:500;font-size:12.5px}
+  tr.hl td{background:rgba(240,166,58,.10)}
+  .tagL{color:var(--dn);font-weight:600}
+  .tagS{color:var(--up);font-weight:600}
+  .tagF{color:var(--mut);font-weight:600}
+  code{background:var(--panel2);padding:1px 6px;border-radius:4px;font-size:13px}
   .btn{background:transparent;border:1px solid var(--line);color:var(--mut);
-    border-radius:8px;padding:7px 15px;font-size:13px;cursor:pointer;
-    font-family:inherit}
+    border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:inherit}
   .btn:hover{border-color:var(--acc);color:var(--acc)}
-  .err{color:var(--up);font-size:14px}
-  footer{color:var(--mut);font-size:12.5px;text-align:center;margin-top:26px;
-    line-height:1.9}
-  @media(max-width:520px){.vmain{font-size:40px}h1{font-size:19px}}
+  .err{color:var(--up)}
+  footer{color:var(--mut);font-size:12.5px;text-align:center;margin-top:24px;line-height:1.9}
+  @media(max-width:520px){.amain{font-size:29px}h1{font-size:18px}}
 </style>
 </head>
 <body>
@@ -77,74 +84,175 @@
     <h1>BTC 每日决策</h1>
     <span class="date" id="stamp">读取中…</span>
   </header>
+  <p class="lede">每天北京时间 <b>8:00 之后</b>看一次（日线刚收盘）。填两个框，下面直接给出今天该下的单。</p>
 
-  <div class="verdict" id="verdict">
-    <div class="vlabel">今天</div>
-    <div class="vmain" id="vmain">…</div>
-    <div class="vsub" id="vsub">正在从 Binance 拉取数据</div>
+  <div class="setup">
+    <h2>先填这两个</h2>
+    <div class="frow">
+      <div class="fld">
+        <label>① 投入这个策略的总资金（USDT）</label>
+        <input id="cap" type="number" value="10000" min="0" step="100">
+        <p class="hint">这就是「基准仓位」。是你专门划给这套规则的钱，不是全部身家。<br>按最坏能亏一半来考虑填多少。</p>
+      </div>
+      <div class="fld">
+        <label>② 你现在的持仓</label>
+        <select id="hold">
+          <option value="flat">空仓（手上没有仓位）</option>
+          <option value="long">持多</option>
+          <option value="short">持空</option>
+        </select>
+        <p class="hint">此刻你账户里是什么状态。选错了下面的动作就是错的。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="act" id="act">
+    <div class="alabel">今天该做什么</div>
+    <div class="amain" id="amain">读取中…</div>
+    <div class="awhy" id="awhy">正在从 Binance 拉数据</div>
+    <div id="amath"></div>
   </div>
 
   <div class="grid" id="grid"></div>
 
   <section>
-    <h2>三步规则</h2>
-    <ol>
-      <li><b>今天做不做</b> —— 当前波动率低于过去一年 25% 分位就不开新仓。已有仓位照常持有,只是不加不新开。</li>
-      <li><b>方向</b> —— 价格在 50 日均线上方只做多,下方只做空或空仓。不猜顶,不抄底。</li>
-      <li><b>仓位</b> —— 目标波动率 50% ÷ 当前波动率,上限 3 倍。</li>
-    </ol>
-    <p class="mut" style="margin-top:12px">出场:价格反向穿越 50 日均线时平仓或反手。不设盈利目标,不因为「涨够了」提前跑。</p>
-  </section>
-
-  <section>
-    <h2>三条禁令</h2>
-    <ul>
-      <li><b>不跳过信号。</b> 觉得「这次明显不对」而跳过的那一单,往往就是全年赚钱的那一单。</li>
-      <li><b>不因连亏而停。</b> 连亏 8 次是正常的,不是策略坏了。</li>
-      <li><b>不主观加仓。</b> 仓位只由第三步的公式决定。</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>你要接受的代价</h2>
-    <ul>
-      <li>大部分交易是亏的(胜率约 35~45%),靠少数几笔大的把全年拉回来</li>
-      <li>最大回撤 -40% ~ -60% 量级,这是固有代价,优化不掉</li>
-      <li>每次趋势反转都会还持着仓,确认了才出,必然吃到那一段</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>参数</h2>
-    <table>
-      <tr><th>参数</th><th>值</th><th>能不能改</th></tr>
-      <tr><td>均线周期</td><td>50 日</td><td>20~200 都有效,别回测优化</td></tr>
-      <tr><td>目标波动率</td><td>50%</td><td>按能承受的回撤定</td></tr>
-      <tr><td>静默分位</td><td>25%</td><td>可试 20~35%,别精调</td></tr>
-      <tr><td>杠杆上限</td><td>3 倍</td><td>建议更保守</td></tr>
+    <h2 class="sh">完整动作表 —— 你的持仓 × 今天的信号</h2>
+    <table id="dtable">
+      <tr><th>你现在</th><th>信号</th><th>今天做什么</th></tr>
     </table>
-    <p class="mut" style="margin-top:12px">参数曲面应该是平缓高原,不是一根针。只有某个特定数字有效 = 过拟合。</p>
+    <p class="mut" style="margin-top:12px">
+      <b>信号怎么来的：</b>收盘价在 50 日均线上方 = 做多信号，下方 = 做空信号。
+      但只要波动率低于静默线，一律「不做」，压过方向信号。
+    </p>
   </section>
 
-  <div style="text-align:center;margin-top:20px">
+  <section>
+    <h2 class="sh">操作细则（常见踩坑点）</h2>
+    <ul>
+      <li><b>只看日线收盘价。</b> 盘中价格穿过均线不算数，必须是北京时间 8:00 的收盘价穿过才算。盘中来回穿是常态，跟着做会被打死。</li>
+      <li><b>一天只操作一次。</b> 8:00 之后看一眼，该动就动，动完关掉别再看。</li>
+      <li><b>用市价单。</b> 别挂限价等更好的点位。趋势策略赚的是大方向，几十美元的价差不值得错过整段行情。</li>
+      <li><b>仓位差不到 20% 就别调。</b> 波动率天天变，目标仓位也跟着微调。差得不多就不动，省手续费。</li>
+      <li><b>反手一次做完。</b>「平多 + 开空」当成一个动作，别平完了再犹豫。</li>
+      <li><b>不额外设止损。</b> 这套规则的止损就是均线本身——跌破了自然让你平仓。再加止损会在震荡里被反复扫掉。</li>
+      <li><b>杠杆上限先设成 1 倍。</b> 也就是不加杠杆。等你完整走过一个亏损周期、确认自己扛得住，再考虑放开。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2 class="sh">三条禁令</h2>
+    <ul>
+      <li><b>不跳过信号。</b> 觉得「这次明显不对」而跳过的那一单，往往就是全年赚钱的那一单。</li>
+      <li><b>不因连亏而停。</b> 连亏 8 次是正常的，不是策略坏了。</li>
+      <li><b>不主观加仓。</b> 仓位只由公式决定，看着顺眼不是加仓的理由。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2 class="sh">你要接受的代价</h2>
+    <ul>
+      <li><b>大部分交易是亏的。</b> 胜率约 35~45%，靠少数几笔大的把全年拉回来。</li>
+      <li><b>回撤会很深。</b> -40% ~ -60% 量级。这是固有代价，优化不掉。填资金那栏时按这个来考虑。</li>
+      <li><b>每次反转都会吐回一段。</b> 均线是滞后的，等它确认反转，你已经回吐了部分利润。这是结构，不是失误。</li>
+      <li><b>静默期很难受。</b> 约 40% 的时间在空仓，眼看价格波动却什么都不做。回测里正是这段空仓贡献了大部分回撤改善。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2 class="sh">参数</h2>
+    <table>
+      <tr><th>参数</th><th>值</th><th>说明</th></tr>
+      <tr><td>均线周期</td><td>50 日</td><td>20~200 都有效，按想抓的周期选，别回测优化</td></tr>
+      <tr><td>目标波动率</td><td>50%</td><td>调小 = 仓位普遍变小 = 回撤变浅、收益也变低</td></tr>
+      <tr><td>静默分位</td><td>25%</td><td>调大 = 空仓时间更长、更保守</td></tr>
+      <tr><td>杠杆上限</td><td>3 倍</td><td>建议先改成 1 倍跑，也就是不加杠杆</td></tr>
+    </table>
+    <p class="mut" style="margin-top:12px">
+      参数曲面应该是平缓高原，不是一根针。只有某个特定数字有效 = 过拟合。
+      改参数编辑 <code>index.html</code> 顶部的常量。
+    </p>
+  </section>
+
+  <div style="text-align:center;margin-top:18px">
     <button class="btn" onclick="load()">刷新数据</button>
   </div>
 
   <footer>
-    数据来自 Binance 公开接口,页面在你本机计算,不上传任何东西<br>
-    参数源自 2021-2026 的样本内回测,未做样本外验证 —— 实盘前请先纸上验证
+    数据来自 Binance 公开接口，全部计算在你的浏览器里完成，不上传任何东西<br>
+    参数源自 2021-2026 <b>样本内</b>回测，未做样本外验证 —— 这不是投资建议，实盘前请先纸上验证几个月
   </footer>
 </div>
 
 <script>
 const MA_DAYS = 50, TARGET_VOL = 0.50, QUIET_PCT = 0.25, MAX_LEV = 3.0;
+let D = null;
 const fmt = (n, d = 0) => n.toLocaleString('en-US',
   {minimumFractionDigits: d, maximumFractionDigits: d});
 
-function quantile(arr, q) {
-  const s = [...arr].sort((a, b) => a - b);
+function quantile(a, q) {
+  const s = [...a].sort((x, y) => x - y);
   const p = (s.length - 1) * q, lo = Math.floor(p), hi = Math.ceil(p);
   return lo === hi ? s[lo] : s[lo] + (p - lo) * (s[hi] - s[lo]);
+}
+
+const RULES = [
+  ['flat',  'long',  '开多',     '开多仓，市价单一次建到目标数量'],
+  ['flat',  'short', '开空',     '开空仓，市价单一次建到目标数量'],
+  ['flat',  'quiet', '继续空仓', '什么都不做，明天再看'],
+  ['long',  'long',  '持有不动', '除非目标仓位和现有仓位差超过 20%，才补差额'],
+  ['long',  'short', '平多反手', '平掉全部多单，同时开空到目标数量。一个动作做完'],
+  ['long',  'quiet', '清仓',     '平掉全部多单，空仓等待。静默期不持仓'],
+  ['short', 'short', '持有不动', '除非目标仓位和现有仓位差超过 20%，才补差额'],
+  ['short', 'long',  '平空反手', '平掉全部空单，同时开多到目标数量。一个动作做完'],
+  ['short', 'quiet', '清仓',     '平掉全部空单，空仓等待。静默期不持仓'],
+];
+const HOLD_CN = {flat: '空仓', long: '持多', short: '持空'};
+const SIG_CN  = {long: '<span class="tagL">做多</span>',
+                 short: '<span class="tagS">做空</span>',
+                 quiet: '<span class="tagF">静默·不做</span>'};
+
+function render() {
+  if (!D) return;
+  const {px, rvNow, rvQ, sig, lev} = D;
+  const hold = document.getElementById('hold').value;
+  const cap  = Math.max(0, parseFloat(document.getElementById('cap').value) || 0);
+  const rule = RULES.find(r => r[0] === hold && r[1] === sig);
+
+  const notional = cap * lev, qty = px > 0 ? notional / px : 0;
+  const dirTone = sig === 'long' ? 'var(--dn)' : 'var(--up)';
+  const passive = rule[2] === '持有不动' || rule[2] === '继续空仓';
+  document.getElementById('act').style.setProperty('--tone',
+    passive ? 'var(--mut)' : (sig === 'quiet' ? 'var(--mut)' : dirTone));
+  document.getElementById('amain').textContent = rule[2];
+  document.getElementById('awhy').textContent = rule[3];
+
+  let m;
+  if (rule[2] === '继续空仓') {
+    m = `<div><span>波动率 ${(rvNow*100).toFixed(1)}%，低于静默线 ${(rvQ*100).toFixed(1)}%</span>
+         <b>没有可靠趋势，不参与</b></div>`;
+  } else if (rule[2] === '清仓') {
+    m = `<div><span>目标仓位</span><b class="big">0</b></div>
+         <div><span>原因</span><b>波动率 ${(rvNow*100).toFixed(1)}% 已跌破静默线 ${(rvQ*100).toFixed(1)}%</b></div>`;
+  } else if (rule[2] === '持有不动') {
+    m = `<div><span>目标名义仓位</span><b>$${fmt(cap)} × ${lev.toFixed(2)} = <span class="big">$${fmt(notional)}</span></b></div>
+         <div><span>对应 BTC 数量</span><b>${qty.toFixed(4)} BTC</b></div>
+         <div><span>动作</span><b>和现有仓位差 &lt; 20% 就不动</b></div>`;
+  } else {
+    const dir = sig === 'long' ? '多' : '空';
+    const pre = rule[2].startsWith('平') ? `<div><span>第一步</span><b>先平掉现有全部${hold === 'long' ? '多' : '空'}单</b></div>` : '';
+    m = pre +
+        `<div><span>你的资金</span><b>$${fmt(cap)}</b></div>
+         <div><span>× 仓位倍数（50% ÷ 波动率 ${(rvNow*100).toFixed(0)}%）</span><b>${lev.toFixed(2)} 倍</b></div>
+         <div><span>= 名义仓位</span><b class="big">$${fmt(notional)}</b></div>
+         <div><span>÷ 现价 $${fmt(px)}</span><b class="big">开${dir} ${qty.toFixed(4)} BTC</b></div>`;
+  }
+  document.getElementById('amath').innerHTML = `<div class="amath">${m}</div>`;
+
+  document.getElementById('dtable').innerHTML =
+    '<tr><th>你现在</th><th>信号</th><th>今天做什么</th></tr>' +
+    RULES.map(r => `<tr class="${r[0] === hold && r[1] === sig ? 'hl' : ''}">
+      <td>${HOLD_CN[r[0]]}</td><td>${SIG_CN[r[1]]}</td>
+      <td><b>${r[2]}</b><br><span class="mut">${r[3]}</span></td></tr>`).join('');
 }
 
 async function load() {
@@ -155,70 +263,50 @@ async function load() {
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const k = await r.json();
     const close = k.map(x => parseFloat(x[4]));
-    const times = k.map(x => x[0]);
-
     const px = close.at(-1);
     const ma = close.slice(-MA_DAYS).reduce((a, b) => a + b, 0) / MA_DAYS;
-
-    // 日收益
     const ret = close.slice(1).map((c, i) => c / close[i] - 1);
-    // 20日滚动年化波动率序列
     const rv = [];
     for (let i = 19; i < ret.length; i++) {
       const w = ret.slice(i - 19, i + 1);
-      const m = w.reduce((a, b) => a + b, 0) / 20;
-      const v = Math.sqrt(w.reduce((a, b) => a + (b - m) ** 2, 0) / 19);
-      rv.push(v * Math.sqrt(365));
+      const mu = w.reduce((a, b) => a + b, 0) / 20;
+      rv.push(Math.sqrt(w.reduce((a, b) => a + (b - mu) ** 2, 0) / 19) * Math.sqrt(365));
     }
-    const rvNow = rv.at(-1);
-    const rvQ = quantile(rv.slice(-365), QUIET_PCT);
-    const rvMax = Math.max(...rv.slice(-365));
-    const rvMin = Math.min(...rv.slice(-365));
-
-    const isLong = px > ma;
+    const rvNow = rv.at(-1), win = rv.slice(-365);
+    const rvQ = quantile(win, QUIET_PCT);
     const quiet = rvNow < rvQ;
+    const sig = quiet ? 'quiet' : (px > ma ? 'long' : 'short');
     const lev = Math.min(TARGET_VOL / rvNow, MAX_LEV);
+    D = {px, ma, rvNow, rvQ, sig, lev};
 
-    // 裁决区
-    const v = document.getElementById('verdict');
-    const tone = quiet ? 'var(--mut)' : (isLong ? 'var(--dn)' : 'var(--up)');
-    v.style.setProperty('--tone', tone);
-    document.getElementById('vmain').textContent =
-      quiet ? '今天不开新仓' : (isLong ? '做 多' : '做 空');
-    document.getElementById('vsub').innerHTML = quiet
-      ? `波动率 ${(rvNow * 100).toFixed(1)}% 低于静默线 ${(rvQ * 100).toFixed(1)}%,趋势信号大概率是噪音<br><span style="color:var(--mut)">已有仓位照常持有</span>`
-      : `价格在 50 日均线${isLong ? '上' : '下'}方 ${((px / ma - 1) * 100).toFixed(1)}%`
-        + `<div class="vlev">${lev.toFixed(2)} 倍<small> 基准仓位　（50% ÷ ${(rvNow * 100).toFixed(0)}%）</small></div>`;
-
-    // 指标格
-    const pos = Math.max(0, Math.min(1, (rvNow - rvMin) / (rvMax - rvMin)));
-    const qpos = Math.max(0, Math.min(1, (rvQ - rvMin) / (rvMax - rvMin)));
+    const lo = Math.min(...win), hi = Math.max(...win);
+    const pos = Math.max(0, Math.min(1, (rvNow - lo) / (hi - lo)));
+    const qpos = Math.max(0, Math.min(1, (rvQ - lo) / (hi - lo)));
     document.getElementById('grid').innerHTML = `
-      <div class="cell"><div class="ck">BTC 价格</div>
-        <div class="cv">$${fmt(px)}</div>
-        <div class="cn">${new Date(times.at(-1)).toLocaleDateString('zh-CN')} 日线</div></div>
-      <div class="cell"><div class="ck">50 日均线</div>
-        <div class="cv">$${fmt(ma)}</div>
-        <div class="cn" style="color:${isLong ? 'var(--dn)' : 'var(--up)'}">
-          价格在${isLong ? '上' : '下'}方 ${((px / ma - 1) * 100).toFixed(1)}%</div></div>
-      <div class="cell"><div class="ck">当前波动率(年化)</div>
-        <div class="cv">${(rvNow * 100).toFixed(1)}%</div>
-        <div class="cn">静默线 ${(rvQ * 100).toFixed(1)}%　${quiet ? '⏸ 低于' : '✓ 高于'}</div>
+      <div class="cell"><div class="ck">BTC 收盘价</div><div class="cv">$${fmt(px)}</div>
+        <div class="cn">${new Date(k.at(-1)[0]).toLocaleDateString('zh-CN')} 日线</div></div>
+      <div class="cell"><div class="ck">50 日均线</div><div class="cv">$${fmt(ma)}</div>
+        <div class="cn" style="color:${px > ma ? 'var(--dn)' : 'var(--up)'}">
+          价格在${px > ma ? '上' : '下'}方 ${((px / ma - 1) * 100).toFixed(1)}% → 信号${px > ma ? '做多' : '做空'}</div></div>
+      <div class="cell"><div class="ck">当前波动率(年化)</div><div class="cv">${(rvNow * 100).toFixed(1)}%</div>
+        <div class="cn">静默线 ${(rvQ * 100).toFixed(1)}%　${quiet ? '⏸ 低于 → 不做' : '✓ 高于 → 可做'}</div>
         <div class="bar"><i style="width:${pos * 100}%;background:${quiet ? 'var(--mut)' : 'var(--acc)'}"></i>
           <span class="tick" style="left:${qpos * 100}%"></span></div></div>
-      <div class="cell"><div class="ck">建议仓位</div>
-        <div class="cv" style="color:${quiet ? 'var(--mut)' : 'var(--fg)'}">
-          ${quiet ? '0' : lev.toFixed(2) + ' 倍'}</div>
-        <div class="cn">${quiet ? '静默期,不开新仓' : '上限 ' + MAX_LEV + ' 倍'}</div></div>`;
+      <div class="cell"><div class="ck">仓位倍数</div>
+        <div class="cv" style="color:${quiet ? 'var(--mut)' : 'var(--fg)'}">${quiet ? '0' : lev.toFixed(2) + ' 倍'}</div>
+        <div class="cn">${quiet ? '静默期不持仓' : '50% ÷ ' + (rvNow * 100).toFixed(0) + '%，上限 ' + MAX_LEV + ' 倍'}</div></div>`;
 
+    render();
     stamp.textContent = '更新于 ' + new Date().toLocaleString('zh-CN');
   } catch (e) {
-    stamp.innerHTML = '<span class="err">读取失败:' + e.message + '</span>';
-    document.getElementById('vmain').textContent = '—';
-    document.getElementById('vsub').innerHTML =
-      '<span class="err">拿不到数据。检查网络,或 Binance 接口在当前网络环境不可达。</span>';
+    stamp.innerHTML = '<span class="err">读取失败：' + e.message + '</span>';
+    document.getElementById('amain').textContent = '—';
+    document.getElementById('awhy').innerHTML =
+      '<span class="err">拿不到数据。检查网络，或 Binance 接口在当前网络不可达。</span>';
   }
 }
+document.getElementById('cap').addEventListener('input', render);
+document.getElementById('hold').addEventListener('change', render);
 load();
 </script>
 </body>
