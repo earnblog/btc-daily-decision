@@ -32,6 +32,27 @@
   input:focus,select:focus{outline:none;border-color:var(--acc)}
   .hint{color:var(--mut);font-size:12px;margin-top:6px;line-height:1.5}
 
+  .howto{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:11px;margin-bottom:16px}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:11px;
+    padding:15px 17px}
+  .step b{display:inline-flex;align-items:center;justify-content:center;
+    width:23px;height:23px;border-radius:50%;background:var(--acc);color:#12151c;
+    font-size:13px;font-weight:700;margin-bottom:8px}
+  .step span{display:block;font-size:14.5px;font-weight:600}
+  .step i{display:block;color:var(--mut);font-size:12.5px;font-style:normal;margin-top:4px}
+
+  .jstat{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+    gap:10px;margin-bottom:14px}
+  .js{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+  .js u{display:block;color:var(--mut);font-size:11.5px;text-decoration:none;margin-bottom:3px}
+  .js v{display:block;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+  .jwrap{max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:9px}
+  .jwrap table{font-size:13px}
+  .jwrap th{position:sticky;top:0;background:var(--panel2);z-index:1}
+  .jwrap td{padding:7px 8px;white-space:nowrap}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+
   .act{background:var(--panel);border:1px solid var(--line);border-radius:14px;
     padding:26px 24px;margin-bottom:16px;position:relative;overflow:hidden}
   .act::before{content:"";position:absolute;inset:0;opacity:.08;background:var(--tone,transparent)}
@@ -84,7 +105,13 @@
     <h1>BTC 每日决策</h1>
     <span class="date" id="stamp">读取中…</span>
   </header>
-  <p class="lede">每天北京时间 <b>8:00 之后</b>看一次（日线刚收盘）。填两个框，下面直接给出今天该下的单。</p>
+  <p class="lede">每天北京时间 <b>8:00 之后</b>（日线刚收盘）打开一次，全程约 30 秒。</p>
+
+  <div class="howto">
+    <div class="step"><b>1</b><span>打开这个页面</span><i>日志会自动补齐，漏看几天也没关系</i></div>
+    <div class="step"><b>2</b><span>看「今天该做什么」那一栏</span><i>它已经算好了具体开几个 BTC</i></div>
+    <div class="step"><b>3</b><span>照做，然后关掉别再看</span><i>纸上验证阶段就什么都不用做</i></div>
+  </div>
 
   <div class="setup">
     <h2>先填这两个</h2>
@@ -123,6 +150,38 @@
     <p class="mut" style="margin-top:12px">
       <b>信号怎么来的：</b>收盘价在 50 日均线上方 = 做多信号，下方 = 做空信号。
       但只要波动率低于静默线，一律「不做」，压过方向信号。
+    </p>
+  </section>
+
+  <section>
+    <h2 class="sh">自动日志 —— 不用你手动记</h2>
+    <p class="mut" style="margin-bottom:14px">
+      从下面这个日期开始，按规则逐日模拟。每次打开页面自动重算到最新，
+      不依赖你有没有来过，所以永远没有缺口。<b>这是模拟盘，不是你的真实账户。</b>
+    </p>
+    <div class="frow" style="margin-bottom:16px">
+      <div class="fld" style="max-width:210px">
+        <label>起跟日期</label>
+        <input id="since" type="date">
+      </div>
+      <div class="fld" style="max-width:290px">
+        <label>快速选择</label>
+        <div style="display:flex;gap:7px">
+          <button class="btn" onclick="setSince(0)">今天起</button>
+          <button class="btn" onclick="setSince(90)">近90天</button>
+          <button class="btn" onclick="setSince(365)">近1年</button>
+        </div>
+      </div>
+    </div>
+    <div class="jstat" id="jstat"></div>
+    <div class="jwrap"><table id="jtable"></table></div>
+    <div style="margin-top:13px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" onclick="exportCSV()">导出 CSV</button>
+    </div>
+    <p class="mut" style="margin-top:12px">
+      模拟盈亏已计入 5bp/边手续费，未计资金费率和滑点，实盘会比这个差一些。
+      <b>连亏次数</b>是这套规则最该盯的一栏 —— 看到连亏 5 次以上时你什么感觉，
+      就是你能不能用真钱跑它的答案。
     </p>
   </section>
 
@@ -185,7 +244,8 @@
 
 <script>
 const MA_DAYS = 50, TARGET_VOL = 0.50, QUIET_PCT = 0.25, MAX_LEV = 3.0;
-let D = null;
+const FEE = 0.0005, BAND = 0.20;
+let D = null, SERIES = null, JOURNAL = [];
 const fmt = (n, d = 0) => n.toLocaleString('en-US',
   {minimumFractionDigits: d, maximumFractionDigits: d});
 
@@ -255,6 +315,98 @@ function render() {
       <td><b>${r[2]}</b><br><span class="mut">${r[3]}</span></td></tr>`).join('');
 }
 
+/* ---------- 自动日志:从价格历史逐日重算,不依赖用户是否来过 ---------- */
+const SIG_TXT = {long: '做多', short: '做空', quiet: '静默'};
+
+function buildJournal() {
+  if (!SERIES) return;
+  const sinceEl = document.getElementById('since');
+  const since = sinceEl.value ? new Date(sinceEl.value + 'T00:00:00').getTime() : 0;
+  const rows = SERIES.filter(r => r.ms >= since);
+  JOURNAL = [];
+  let pos = 0, eq = 1, streak = 0, worst = 0, peak = 1, maxdd = 0;
+
+  rows.forEach((r, i) => {
+    const target = r.sig === 'quiet' ? 0 : (r.sig === 'long' ? r.lev : -r.lev);
+    // 调仓带:方向变了、目标为0、或偏离超过 BAND 才动
+    let newPos = pos;
+    const flip = Math.sign(target) !== Math.sign(pos);
+    const dev = Math.abs(pos) < 1e-9 ? Infinity : Math.abs(target - pos) / Math.abs(pos);
+    if (flip || target === 0 || dev > BAND) newPos = target;
+    const turn = Math.abs(newPos - pos);
+
+    // 当日收益用「昨天的仓位 × 今天的涨跌」
+    const dayRet = i === 0 ? 0 : pos * r.ret - turn * FEE;
+    eq *= (1 + dayRet);
+    peak = Math.max(peak, eq);
+    maxdd = Math.min(maxdd, eq / peak - 1);
+    if (i > 0 && Math.abs(pos) > 1e-9) {
+      if (dayRet < 0) { streak++; worst = Math.max(worst, streak); } else if (dayRet > 0) streak = 0;
+    }
+
+    let act = '持有';
+    if (turn > 1e-9) {
+      if (target === 0) act = pos === 0 ? '空仓' : '清仓';
+      else if (pos === 0) act = target > 0 ? '开多' : '开空';
+      else if (flip) act = target > 0 ? '平空反手' : '平多反手';
+      else act = '调仓';
+    } else if (Math.abs(pos) < 1e-9) act = '空仓';
+
+    pos = newPos;
+    JOURNAL.push({date: r.date, px: r.px, ma: r.ma, vol: r.vol, sig: r.sig,
+                  lev: r.lev, pos, act, dayRet, eq});
+  });
+
+  const last = JOURNAL.at(-1);
+  const days = JOURNAL.length;
+  const quietDays = JOURNAL.filter(j => j.sig === 'quiet').length;
+  const trades = JOURNAL.filter(j => j.act !== '持有' && j.act !== '空仓').length;
+  const tot = last ? (last.eq - 1) * 100 : 0;
+
+  document.getElementById('jstat').innerHTML = `
+    <div class="js"><u>跟踪天数</u><v>${days}</v></div>
+    <div class="js"><u>模拟盈亏</u><v style="color:${tot >= 0 ? 'var(--dn)' : 'var(--up)'}">${tot >= 0 ? '+' : ''}${tot.toFixed(1)}%</v></div>
+    <div class="js"><u>最大回撤</u><v style="color:var(--up)">${(maxdd * 100).toFixed(1)}%</v></div>
+    <div class="js"><u>最长连亏</u><v>${worst} 天</v></div>
+    <div class="js"><u>静默占比</u><v>${days ? (quietDays / days * 100).toFixed(0) : 0}%</v></div>
+    <div class="js"><u>操作次数</u><v>${trades}</v></div>`;
+
+  const head = `<tr><th>日期</th><th>收盘价</th><th>信号</th><th>仓位</th>
+    <th>动作</th><th class="num">当日</th><th class="num">累计</th></tr>`;
+  document.getElementById('jtable').innerHTML = head +
+    [...JOURNAL].reverse().map(j => {
+      const c = j.sig === 'long' ? 'tagL' : j.sig === 'short' ? 'tagS' : 'tagF';
+      const dc = j.dayRet >= 0 ? 'var(--dn)' : 'var(--up)';
+      const ec = j.eq >= 1 ? 'var(--dn)' : 'var(--up)';
+      return `<tr><td>${j.date}</td><td class="num">$${fmt(j.px)}</td>
+        <td><span class="${c}">${SIG_TXT[j.sig]}</span></td>
+        <td class="num">${j.pos === 0 ? '—' : j.pos.toFixed(2)}</td>
+        <td>${j.act}</td>
+        <td class="num" style="color:${dc}">${(j.dayRet * 100).toFixed(2)}%</td>
+        <td class="num" style="color:${ec}">${((j.eq - 1) * 100).toFixed(1)}%</td></tr>`;
+    }).join('');
+}
+
+function setSince(daysAgo) {
+  const d = new Date(); d.setDate(d.getDate() - daysAgo);
+  document.getElementById('since').value = d.toISOString().slice(0, 10);
+  localStorage.setItem('btc_since', document.getElementById('since').value);
+  buildJournal();
+}
+
+function exportCSV() {
+  const head = '日期,收盘价,50日均线,年化波动率,信号,仓位倍数,持仓,动作,当日收益,累计净值\n';
+  const body = JOURNAL.map(j => [j.date, j.px.toFixed(2), j.ma.toFixed(2),
+    (j.vol * 100).toFixed(2) + '%', SIG_TXT[j.sig], j.lev.toFixed(2),
+    j.pos.toFixed(3), j.act, (j.dayRet * 100).toFixed(3) + '%',
+    j.eq.toFixed(4)].join(',')).join('\n');
+  const blob = new Blob(['﻿' + head + body], {type: 'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'btc-decision-log.csv';
+  a.click();
+}
+
 async function load() {
   const stamp = document.getElementById('stamp');
   stamp.textContent = '读取中…';
@@ -279,6 +431,26 @@ async function load() {
     const lev = Math.min(TARGET_VOL / rvNow, MAX_LEV);
     D = {px, ma, rvNow, rvQ, sig, lev};
 
+    // 逐日重建信号序列(rv[j] 对应 close[j+20])
+    SERIES = [];
+    for (let j = 0; j < rv.length; j++) {
+      const ci = j + 20;
+      if (ci < MA_DAYS - 1) continue;
+      const maI = close.slice(ci - MA_DAYS + 1, ci + 1).reduce((a, b) => a + b, 0) / MA_DAYS;
+      const hist = rv.slice(Math.max(0, j - 364), j + 1);
+      if (hist.length < 60) continue;                 // 分位数样本太少就跳过
+      const qI = quantile(hist, QUIET_PCT);
+      const qt = rv[j] < qI;
+      SERIES.push({
+        ms: k[ci][0],
+        date: new Date(k[ci][0]).toISOString().slice(0, 10),
+        px: close[ci], ma: maI, vol: rv[j],
+        sig: qt ? 'quiet' : (close[ci] > maI ? 'long' : 'short'),
+        lev: Math.min(TARGET_VOL / rv[j], MAX_LEV),
+        ret: close[ci] / close[ci - 1] - 1,
+      });
+    }
+
     const lo = Math.min(...win), hi = Math.max(...win);
     const pos = Math.max(0, Math.min(1, (rvNow - lo) / (hi - lo)));
     const qpos = Math.max(0, Math.min(1, (rvQ - lo) / (hi - lo)));
@@ -297,6 +469,7 @@ async function load() {
         <div class="cn">${quiet ? '静默期不持仓' : '50% ÷ ' + (rvNow * 100).toFixed(0) + '%，上限 ' + MAX_LEV + ' 倍'}</div></div>`;
 
     render();
+    buildJournal();
     stamp.textContent = '更新于 ' + new Date().toLocaleString('zh-CN');
   } catch (e) {
     stamp.innerHTML = '<span class="err">读取失败：' + e.message + '</span>';
@@ -305,8 +478,17 @@ async function load() {
       '<span class="err">拿不到数据。检查网络，或 Binance 接口在当前网络不可达。</span>';
   }
 }
-document.getElementById('cap').addEventListener('input', render);
-document.getElementById('hold').addEventListener('change', render);
+// 记住上次填的资金 / 持仓 / 起跟日期
+const CAP = document.getElementById('cap'), HOLD = document.getElementById('hold'),
+      SINCE = document.getElementById('since');
+CAP.value   = localStorage.getItem('btc_cap')   || CAP.value;
+HOLD.value  = localStorage.getItem('btc_hold')  || HOLD.value;
+SINCE.value = localStorage.getItem('btc_since') ||
+  new Date(Date.now() - 90 * 864e5).toISOString().slice(0, 10);
+
+CAP.addEventListener('input',  () => { localStorage.setItem('btc_cap', CAP.value); render(); });
+HOLD.addEventListener('change', () => { localStorage.setItem('btc_hold', HOLD.value); render(); });
+SINCE.addEventListener('change', () => { localStorage.setItem('btc_since', SINCE.value); buildJournal(); });
 load();
 </script>
 </body>
